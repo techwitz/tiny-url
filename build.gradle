@@ -1,0 +1,125 @@
+plugins {
+    id 'java'
+    // id 'io.quarkus.extension' version '3.21.0'
+    id 'io.quarkus' version '3.21.0'
+
+    id "io.freefair.lombok" version "8.12"
+}
+
+group = 'com.techwitz'
+version = '1.0.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'io.quarkus'
+apply plugin: 'io.freefair.lombok'
+
+dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+
+    // Quarkus core dependencies
+    implementation enforcedPlatform("io.quarkus.platform:quarkus-bom:${quarkusPlatformVersion}")
+    implementation 'io.quarkus:quarkus-rest-jackson'
+    implementation 'io.quarkus:quarkus-rest'
+    implementation 'io.quarkus:quarkus-arc'
+
+    // Database & persistence
+    implementation 'io.quarkus:quarkus-hibernate-reactive'
+    implementation 'io.quarkus:quarkus-reactive-pg-client'
+    implementation 'io.quarkus:quarkus-hibernate-reactive-panache'
+    // implementation 'io.quarkus:quarkus-jdbc-postgresql'
+    implementation 'io.quarkus:quarkus-liquibase'
+
+    // Caching & Redis
+    implementation 'io.quarkus:quarkus-redis-cache'
+    implementation 'io.quarkus:quarkus-cache'
+
+    // Observability & monitoring
+    implementation 'io.quarkus:quarkus-smallrye-health'
+    implementation 'io.quarkus:quarkus-smallrye-metrics'
+
+    // Configuration & utilities
+    implementation 'io.quarkus:quarkus-config-yaml'
+    implementation 'io.quarkus:quarkus-scheduler'
+
+    // Validation
+    implementation 'io.quarkus:quarkus-hibernate-validator'
+
+    // API documentation
+    implementation 'io.quarkus:quarkus-smallrye-openapi'
+    implementation 'io.quarkus:quarkus-swagger-ui'
+
+    // Security
+    implementation 'io.quarkus:quarkus-security'
+
+    // Testing
+    testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.mockito:mockito-core:5.10.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.10.0'
+    testImplementation 'io.quarkus:quarkus-test-h2'
+    testImplementation 'io.quarkus:quarkus-jdbc-h2'
+
+    // Dev tools
+    developmentOnly 'io.quarkus:quarkus-devservices-postgresql'
+    // developmentOnly 'io.quarkus:quarkus-devservices-redis'
+
+    // annotation
+    annotationProcessor "org.projectlombok:lombok:1.18.36"
+    compileOnly "org.projectlombok:lombok:1.18.36"
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
+
+test {
+    systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += [
+            '-Xlint:unchecked',
+            '-Xlint:deprecation'
+    ]
+}
+
+// Configure native build if needed
+quarkusBuild {
+    nativeArgs {
+        containerBuild = true
+        additionalBuildArgs = [
+                '-H:+ReportExceptionStackTraces',
+                '-H:+AddAllCharsets',
+                '--initialize-at-build-time=org.slf4j.simple.SimpleLogger,org.slf4j.LoggerFactory'
+        ]
+    }
+}
+
