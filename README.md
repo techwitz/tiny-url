@@ -71,7 +71,7 @@ To build and run this application, you need:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-organization/tiny-url-service.git
+git clone https://github.com/techwitz/tiny-url.git
 
 # Navigate to the project directory
 cd tiny-url-service
